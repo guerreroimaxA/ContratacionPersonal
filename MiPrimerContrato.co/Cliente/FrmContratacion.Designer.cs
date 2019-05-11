@@ -224,6 +224,7 @@
             this.btnBuscar.TabIndex = 16;
             this.btnBuscar.UseVisualStyleBackColor = false;
             this.btnBuscar.Visible = false;
+            this.btnBuscar.Click += new System.EventHandler(this.btnBuscar_Click);
             // 
             // btnEnviarDatos
             // 
@@ -240,6 +241,7 @@
             this.btnEnviarDatos.Text = "Enviar Datos";
             this.btnEnviarDatos.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnEnviarDatos.UseVisualStyleBackColor = false;
+            this.btnEnviarDatos.Click += new System.EventHandler(this.btnEnviarDatos_Click);
             // 
             // btnEnviarDocumento
             // 
@@ -306,6 +308,7 @@
             this.Name = "FrmContratacion";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Contratación";
+            this.Load += new System.EventHandler(this.FrmContratacion_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
