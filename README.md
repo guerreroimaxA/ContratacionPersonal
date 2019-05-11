@@ -23,4 +23,4 @@ El presente trabajo consiste en implementar una aplicación distribuida que perm
     
     3.5. Una vez en estado ENTREGA_DOCUMENTOS, deberá preguntar si está seguro de contratar, si el cliente dice SI, irá a CONTRATADO, si dice NO irá a VALIDADO. 
 
-![Contratacion](./img/contratacion.jpeg)
+![Contratacion](./img/contratacion.png)
