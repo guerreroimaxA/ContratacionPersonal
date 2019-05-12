@@ -49,6 +49,7 @@
             this.btnEnviarDocumento = new System.Windows.Forms.Button();
             this.txtNombreDocumento = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.ofdAbrirPDF = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -178,10 +179,10 @@
             // txtEstado
             // 
             this.txtEstado.Enabled = false;
-            this.txtEstado.Location = new System.Drawing.Point(173, 276);
+            this.txtEstado.Location = new System.Drawing.Point(109, 276);
             this.txtEstado.MaxLength = 20;
             this.txtEstado.Name = "txtEstado";
-            this.txtEstado.Size = new System.Drawing.Size(127, 20);
+            this.txtEstado.Size = new System.Drawing.Size(191, 20);
             this.txtEstado.TabIndex = 14;
             // 
             // lblEstado
@@ -210,6 +211,7 @@
             this.btnCargarDocumento.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnCargarDocumento.UseVisualStyleBackColor = false;
             this.btnCargarDocumento.Visible = false;
+            this.btnCargarDocumento.Click += new System.EventHandler(this.btnCargarDocumento_Click);
             // 
             // btnBuscar
             // 
@@ -259,6 +261,7 @@
             this.btnEnviarDocumento.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnEnviarDocumento.UseVisualStyleBackColor = false;
             this.btnEnviarDocumento.Visible = false;
+            this.btnEnviarDocumento.Click += new System.EventHandler(this.btnEnviarDocumento_Click);
             // 
             // txtNombreDocumento
             // 
@@ -277,6 +280,10 @@
             this.pictureBox1.Size = new System.Drawing.Size(128, 128);
             this.pictureBox1.TabIndex = 20;
             this.pictureBox1.TabStop = false;
+            // 
+            // ofdAbrirPDF
+            // 
+            this.ofdAbrirPDF.FileName = "Abrir PDF";
             // 
             // FrmContratacion
             // 
@@ -308,7 +315,6 @@
             this.Name = "FrmContratacion";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Contratación";
-            this.Load += new System.EventHandler(this.FrmContratacion_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -337,5 +343,6 @@
         public System.Windows.Forms.Button btnBuscar;
         public System.Windows.Forms.Button btnEnviarDatos;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.OpenFileDialog ofdAbrirPDF;
     }
 }

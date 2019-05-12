@@ -106,8 +106,6 @@
             this.Name = "FrmConsultarPersonal";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Consultar Personal";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmConsultarPersonal_FormClosing);
-            this.Load += new System.EventHandler(this.FrmConsultarPersonal_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

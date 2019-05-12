@@ -19,6 +19,8 @@ namespace Clases
         private string departamento;
         private string titulo;
         private string estado;
+        // Atributo para almacenar el archivo PDF a ser enviado
+        private byte[] documento;
 
         // Constructor por defecto de la clase Persona
         public Persona()
@@ -53,11 +55,12 @@ namespace Clases
         public string Titulo { get => titulo; set => titulo = value; }
         public string Estado { get => estado; set => estado = value; }
         public string Comando { get => comando; set => comando = value; }
+        public byte[] Documento { get => documento; set => documento = value; }
 
         // Método ToString()
         public override string ToString()
         {
-            return Cedula + "\t" + Comando + "\t" + Nombre + "\t" + Apellido + "\t" + TipoPersonal + "\t" + Departamento + "\t" + Titulo + "\t" + Estado;
+            return Comando + "\t" + Cedula + "\t" + Nombre + "\t" + Apellido + "\t" + TipoPersonal + "\t" + Departamento + "\t" + Titulo + "\t" + Estado;
         }
     }
 }

@@ -26,29 +26,20 @@ namespace Cliente
             InitializeComponent();
         }
 
-        private void FrmConsultarPersonal_Load(object sender, EventArgs e)
-        {
-            
-            
-        }
-
-        private void FrmConsultarPersonal_FormClosing(object sender, FormClosingEventArgs e)
-        {
-        }
-
         private void cbxTipoPersonal_SelectedIndexChanged(object sender, EventArgs e)
         {
             // Definición de la conexión remota con el servidor
             remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
             usuario = new TcpClient();
             usuario.Connect(remoto);
+            lector = new StreamReader(usuario.GetStream());
 
             // Instanciamos una Persona con el comando "cantidad" para consultar por el Tipo de Personal
             Persona persona = new Persona();
             persona.Comando = "cantidad";
             persona.TipoPersonal = cbxTipoPersonal.Text;
 
-            lector = new StreamReader(usuario.GetStream());
+            // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
             BinaryFormatter bf = new BinaryFormatter();
 
             // Serialización del objeto para enviarlo al servidor

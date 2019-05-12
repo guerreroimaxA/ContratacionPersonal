@@ -20,7 +20,10 @@ namespace Cliente
             InitializeComponent();
         }
 
+        // Importamos las librerías DLL para controlar el manejo del movimiento de la ventana - RealeseCapture y SendMessage
         [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+
+        // Usa el modificador extern para declarar que el método importado del DLL está implementado externamente
         private extern static void ReleaseCapture();
         [DllImport("user32.DLL", EntryPoint = "SendMessage")]
         private extern static void SendMessage(System.IntPtr hwnd, int wmsg, int wparam, int lparam);
@@ -108,7 +111,7 @@ namespace Cliente
                 Application.Exit();
         }
 
-        // Método que permite mover la ventana al mantener presionado un botón del mouse
+        // Método que permite mover la ventana al mantener presionado un botón del mouse sobre el panel superior
         private void pnlHeader_MouseDown(object sender, MouseEventArgs e)
         {
             ReleaseCapture();

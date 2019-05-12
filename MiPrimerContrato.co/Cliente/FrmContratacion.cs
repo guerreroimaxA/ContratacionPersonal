@@ -21,12 +21,14 @@ namespace Cliente
         StreamReader lector;
         StreamWriter escritor;
         IPEndPoint remoto;
+        Persona persona;
         string mensajeRecibido;
         public FrmContratacion()
         {
             InitializeComponent();
         }
 
+        // Evento que se desencadena para enviar los datos del usuario al iniciar un nuevo proceso de contratación
         private void btnEnviarDatos_Click(object sender, EventArgs e)
         {
             try
@@ -35,10 +37,13 @@ namespace Cliente
                 remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
                 usuario = new TcpClient();
                 usuario.Connect(remoto);
-                // Se instancia una persona con la solicitud "nuevo" para ingresar a la base de datos
-                Persona persona = new Persona("nuevo", txtCedula.Text, txtNombre.Text, txtApellido.Text, cbxTipo.Text, cbxDepartamento.Text, txtTitulo.Text, "SOLICITADO");
                 lector = new StreamReader(usuario.GetStream());
                 escritor = new StreamWriter(usuario.GetStream());
+
+                // Se instancia una persona con la solicitud "nuevo" para ingresar a la base de datos
+                persona = new Persona("nuevo", txtCedula.Text, txtNombre.Text, txtApellido.Text, cbxTipo.Text, cbxDepartamento.Text, txtTitulo.Text, "SOLICITADO");
+
+                // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
                 BinaryFormatter bf = new BinaryFormatter();
 
                 // Serialización del objeto para enviarlo al servidor
@@ -61,12 +66,7 @@ namespace Cliente
             }
         }
 
-        private void FrmContratacion_Load(object sender, EventArgs e)
-        {
-            
-        }
-
-        // Método para limpiar los textos 
+        // Método para limpiar los textos y bloquearlos
         private void TerminarProceso()
         {
             txtCedula.Text = "";
@@ -74,6 +74,7 @@ namespace Cliente
             txtApellido.Text = "";
             txtTitulo.Text = "";
             txtEstado.Text = "";
+            txtNombreDocumento.Text = "";
             cbxTipo.Text = "";
             cbxDepartamento.Text = "";
             txtCedula.Enabled = false;
@@ -84,16 +85,19 @@ namespace Cliente
             cbxTipo.Enabled = false;
             cbxDepartamento.Enabled = false;
             btnEnviarDatos.Enabled = false;
+            btnCargarDocumento.Enabled = false;
+            btnEnviarDocumento.Enabled = false;
+            txtNombreDocumento.Enabled = false;
         }
 
-        // Método para buscar una persona en particular
+        // Evento para buscar una persona en particular
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             // Se valida que el usuario haya ingresado el número de cédula
             if(txtCedula.Text != "")
             {
                 // Instanciamos un objeto Persona con el comando de "consulta" y su número de cédula
-                Persona persona = new Persona("consulta", txtCedula.Text);
+                persona = new Persona("consulta", txtCedula.Text);
                 try
                 {
                     // Definición de la conexión remota con el servidor
@@ -102,9 +106,11 @@ namespace Cliente
                     usuario.Connect(remoto);
                     lector = new StreamReader(usuario.GetStream());
                     escritor = new StreamWriter(usuario.GetStream());
+
+                    // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
                     BinaryFormatter bf = new BinaryFormatter();
 
-                    // Se envía el objeto Persona Serializado al servidor
+                    // Se envía el objeto Persona Serializado al servidor para ejecutar la consulta en la base de datos
                     bf.Serialize(usuario.GetStream(), persona);
 
                     // Recibe el objeto Persona como respuesta del servidor para Deserializalo
@@ -145,6 +151,54 @@ namespace Cliente
                         btnEnviarDocumento.Visible = true;
                         txtNombreDocumento.Visible = true;
                     }
+                    // Caso contrario, si el estado es ENTREGA_DOCUMENTOS se preguntará si desea ser contratado
+                    else if (persona.Estado.Equals("ENTREGA_DOCUMENTOS"))
+                    {
+                        // Almacena el resultado del cliente al preguntar si desea ser contratado
+                        DialogResult resultado = MessageBox.Show("¿Desea ser contratado?", "Mi Primer Contrato.co", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                        // Se valida el resultado del cliente para modificar su estado
+                        if (resultado == DialogResult.Yes)
+                        {
+                            persona.Estado = "CONTRATADO";
+                            txtEstado.Text = "CONTRATADO";
+                        }
+                        else
+                        {
+                            persona.Estado = "VALIDADO";
+                            txtEstado.Text = "VALIDADO";
+                        }
+
+                        // El comando es contratar para modificar el estado de la persona en la base de datos
+                        persona.Comando = "contratar";
+                        try
+                        {
+                            // Definición de la conexión remota con el servidor
+                            remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
+                            usuario = new TcpClient();
+                            usuario.Connect(remoto);
+                            lector = new StreamReader(usuario.GetStream());
+                            escritor = new StreamWriter(usuario.GetStream());
+
+                            // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
+                            BinaryFormatter bf = new BinaryFormatter();
+
+                            // Se envía el objeto Persona Serializado al servidor para actualizar el estado
+                            bf.Serialize(usuario.GetStream(), persona);
+                            mensajeRecibido = lector.ReadLine();
+                            MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                        finally
+                        {
+                            escritor.Close();
+                            lector.Close();
+                            usuario.Close();
+                        }
+                    }
                 }
                 else
                 {
@@ -152,6 +206,66 @@ namespace Cliente
                     MessageBox.Show("La persona ingresada no se encuentra registrada. Proceda a realizar el proceso de contratación", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     txtCedula.Text = "";
                 }
+            }
+            else
+            {
+                MessageBox.Show("Porfavor ingrese un número de cédula", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Método para mostrar un cuadro de diálogo que permita escoger un documento PDF a enviar
+        private void btnCargarDocumento_Click(object sender, EventArgs e)
+        {
+            // Instacia de un objeto OpenFileDialog para mostrar un cuadro de diálogo
+            OpenFileDialog abrirPDF = new OpenFileDialog();
+            
+            // Aplica el filtro para subir archivos PDF
+            abrirPDF.Filter = "Archivos pdf(*.pdf)|*.pdf";
+
+            // Título para el cuadro de diálogo
+            abrirPDF.Title = "Archivos PDF";
+
+            // Si se selecciona el documento, se almacena la ruta del archivo en la caja de Texto
+            if(abrirPDF.ShowDialog() == DialogResult.OK)
+            {
+                txtNombreDocumento.Text = abrirPDF.FileName;
+            }
+
+            // Liberación de los recursos del cuadro de diálogo
+            abrirPDF.Dispose();
+        }
+
+        // Evento desencadenado para enviar el documento PDF escogido al servidor
+        private void btnEnviarDocumento_Click(object sender, EventArgs e)
+        {
+            // Validación de que el usuario haya escogido un documento para enviar
+            if(txtNombreDocumento.Text != "")
+            {
+                // Convierte el documento PDF en un arreglo de bytes para ser enviado
+                persona.Documento = System.IO.File.ReadAllBytes(txtNombreDocumento.Text);
+                persona.Comando = "guardarpdf";
+                persona.Estado = "ENTREGA_DOCUMENTOS";
+
+                // Definición de la conexión remota con el servidor
+                remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
+                usuario = new TcpClient();
+                usuario.Connect(remoto);
+                lector = new StreamReader(usuario.GetStream());
+                escritor = new StreamWriter(usuario.GetStream());
+
+                // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
+                BinaryFormatter bf = new BinaryFormatter();
+
+                // Se envía el objeto Persona Serializado al servidor
+                bf.Serialize(usuario.GetStream(), persona);
+
+                mensajeRecibido = lector.ReadLine();
+                MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                TerminarProceso();
+            }
+            else
+            {
+                MessageBox.Show("Porfavor adjunte un archivo PDF", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
     }

@@ -74,7 +74,7 @@ namespace Clases
                     query = "INSERT INTO tblPersona VALUES ('" + persona.Cedula + "', '" + persona.Nombre + "', '" + persona.Apellido + "', '" + persona.TipoPersonal + "', '" + persona.Departamento + "', '" + persona.Titulo + "', '" + persona.Estado + "')";
                     comando = new SqlCommand(query, conexion);
 
-                    // Validación del correcto ingreso de los datos
+                    // Validación de que los datos hayan sido ingresados
                     if (comando.ExecuteNonQuery() > 0)
                     {
                         cerrarConexion(conexion);
@@ -97,7 +97,7 @@ namespace Clases
             Persona persona = new Persona();
             SqlConnection conexion = ObtenerConexion();
 
-            // Realiza una consulta en la base de datos en base al número de cédula
+            // Realiza una consulta en la base de datos de acuerdo al número de cédula
             string query = "SELECT * FROM tblPersona WHERE cedula = '" + cedula + "'";
             SqlCommand comando = new SqlCommand(query, conexion);
             try
@@ -121,6 +121,7 @@ namespace Clases
                     cerrarConexion(conexion);
                     return persona;
                 }
+                // Si la persona no existe se devolvera el objeto sin valores
                 else
                 {
                     reader.Close();
@@ -136,11 +137,12 @@ namespace Clases
             }
         }
 
+        // Método para consultar la cantidad de personas Contratadas por Tipo de Personal
         public static string ConsultarCantidadContratados(string tipoPersonal)
         {
             SqlConnection conexion = ObtenerConexion();
             string cantidad = "0";
-            string query = "SELECT COUNT(tipoPersonal) FROM tblPersona WHERE tipoPersonal = '" + tipoPersonal + "'";
+            string query = "SELECT COUNT(tipoPersonal) FROM tblPersona WHERE tipoPersonal = '" + tipoPersonal + "' AND estado = 'CONTRATADO'";
             SqlCommand comando = new SqlCommand(query, conexion);
             try
             {
@@ -162,6 +164,69 @@ namespace Clases
                 Console.WriteLine(ex.Message);
                 cerrarConexion(conexion);
                 return cantidad;
+            }
+        }
+
+        // Método para guardar el documento PDF en la base de datos enviado por un usuario 
+        public static string GuardarPDF(Persona persona)
+        {
+            string query = "INSERT INTO tblDocumento (cedulaPersona, documentoPDF) VALUES (@cedula, @documento)";
+            try
+            {
+                using (SqlConnection conexion = ObtenerConexion())
+                {
+                    using (SqlCommand comando = new SqlCommand(query, conexion))
+                    {
+                        comando.CommandType = System.Data.CommandType.Text;
+
+                        // Se añade los parámetros en la consulta para la base de datos para guardar el PDF
+                        comando.Parameters.AddWithValue("@cedula", persona.Cedula);
+                        comando.Parameters.AddWithValue("@documento", persona.Documento);
+                        if (comando.ExecuteNonQuery() > 0)
+                        {
+                            // Una vez ingresado el documento, se procede a actualizar el estado del usuario
+                            query = "UPDATE tblPersona SET estado = 'ENTREGA_DOCUMENTOS' WHERE cedula = '" + persona.Cedula + "'";
+                            using (SqlCommand cmd = new SqlCommand(query, conexion))
+                            {
+                                if(cmd.ExecuteNonQuery() > 0)
+                                {
+                                    cerrarConexion(conexion);
+                                    return "Documento ingresado con éxito";
+                                }
+                            }
+                        }
+                        cerrarConexion(conexion);
+                        return "Error al guardar el documento";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "Error al guardar el documento";
+            }
+        }
+
+        // Método para actualizar el estado de la persona cuando se le pregunta si desea ser contratado
+        public static string ActualizarEstado(string estado, string cedulaPersona)
+        {
+            SqlConnection conexion = ObtenerConexion();
+            string query = "UPDATE tblPersona SET estado = '" + estado + "' WHERE cedula = '" + cedulaPersona + "'";
+            try
+            {
+                SqlCommand comando = new SqlCommand(query, conexion);
+                if (comando.ExecuteNonQuery() > 0)
+                {
+                    cerrarConexion(conexion);
+                    return "Proceso de contratación terminado";
+                }
+                cerrarConexion(conexion);
+                return "Proceso de contratación terminado";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "Error al finalizar el proceso de contratación";
             }
         }
     }
