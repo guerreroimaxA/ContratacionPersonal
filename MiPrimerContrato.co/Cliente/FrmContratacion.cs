@@ -31,38 +31,81 @@ namespace Cliente
         // Evento que se desencadena para enviar los datos del usuario al iniciar un nuevo proceso de contratación
         private void btnEnviarDatos_Click(object sender, EventArgs e)
         {
-            try
+            // No se pueden eviar los datos si hay campos vacíos.
+            if(txtCedula.Text != "")
             {
-                // Definición de la conexión remota con el servidor
-                remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
-                usuario = new TcpClient();
-                usuario.Connect(remoto);
-                lector = new StreamReader(usuario.GetStream());
-                escritor = new StreamWriter(usuario.GetStream());
+                if (txtNombre.Text != "")
+                {
+                    if (txtApellido.Text != "")
+                    {
+                        if (cbxDepartamento.Text != "")
+                        {
+                            if (txtTitulo.Text != "")
+                            {
+                                if (cbxTipo.Text != "")
+                                {
+                                    try
+                                    {
+                                        // Definición de la conexión remota con el servidor
+                                        remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
+                                        usuario = new TcpClient();
+                                        usuario.Connect(remoto);
+                                        lector = new StreamReader(usuario.GetStream());
+                                        escritor = new StreamWriter(usuario.GetStream());
 
-                // Se instancia una persona con la solicitud "nuevo" para ingresar a la base de datos
-                persona = new Persona("nuevo", txtCedula.Text, txtNombre.Text, txtApellido.Text, cbxTipo.Text, cbxDepartamento.Text, txtTitulo.Text, "SOLICITADO");
+                                        // Se instancia una persona con la solicitud "nuevo" para ingresar a la base de datos
+                                        persona = new Persona("nuevo", txtCedula.Text, txtNombre.Text, txtApellido.Text, cbxTipo.Text, cbxDepartamento.Text, txtTitulo.Text, "SOLICITADO");
 
-                // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
-                BinaryFormatter bf = new BinaryFormatter();
+                                        // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
+                                        BinaryFormatter bf = new BinaryFormatter();
 
-                // Serialización del objeto para enviarlo al servidor
-                bf.Serialize(usuario.GetStream(), persona);
+                                        // Serialización del objeto para enviarlo al servidor
+                                        bf.Serialize(usuario.GetStream(), persona);
 
-                // Lectura del mensaje recibido por parte del servidor
-                mensajeRecibido = lector.ReadLine();
-                MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                TerminarProceso();
+                                        // Lectura del mensaje recibido por parte del servidor
+                                        mensajeRecibido = lector.ReadLine();
+                                        MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                        TerminarProceso();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+                                    finally
+                                    {
+                                        escritor.Close();
+                                        lector.Close();
+                                        usuario.Close();
+                                    }
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Porfavor seleccione el Tipo.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("Porfavor ingrese el Título.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Porfavor seleccione el Departamento.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Porfavor ingrese su Apellido.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Porfavor ingrese su Nombre.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                }
             }
-            catch(Exception ex)
+            else
             {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                escritor.Close();
-                lector.Close();
-                usuario.Close();
+                MessageBox.Show("Porfavor ingrese su número de cédula.", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Stop);
             }
         }
 
@@ -186,6 +229,7 @@ namespace Cliente
                             // Se envía el objeto Persona Serializado al servidor para actualizar el estado
                             bf.Serialize(usuario.GetStream(), persona);
                             mensajeRecibido = lector.ReadLine();
+                            MessageBox.Show("Gracias por su respuesta. Su estado es " + persona.Estado, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         }
                         catch (Exception ex)
@@ -241,31 +285,80 @@ namespace Cliente
             // Validación de que el usuario haya escogido un documento para enviar
             if(txtNombreDocumento.Text != "")
             {
-                // Convierte el documento PDF en un arreglo de bytes para ser enviado
-                persona.Documento = System.IO.File.ReadAllBytes(txtNombreDocumento.Text);
-                persona.Comando = "guardarpdf";
-                persona.Estado = "ENTREGA_DOCUMENTOS";
+                try
+                {
+                    // Convierte el documento PDF en un arreglo de bytes para ser enviado
+                    persona.Documento = File.ReadAllBytes(txtNombreDocumento.Text);
+                    persona.Comando = "guardarpdf";
+                    persona.Estado = "ENTREGA_DOCUMENTOS";
 
-                // Definición de la conexión remota con el servidor
-                remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
-                usuario = new TcpClient();
-                usuario.Connect(remoto);
-                lector = new StreamReader(usuario.GetStream());
-                escritor = new StreamWriter(usuario.GetStream());
+                    // Definición de la conexión remota con el servidor
+                    remoto = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8090);
+                    usuario = new TcpClient();
+                    usuario.Connect(remoto);
+                    lector = new StreamReader(usuario.GetStream());
+                    escritor = new StreamWriter(usuario.GetStream());
 
-                // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
-                BinaryFormatter bf = new BinaryFormatter();
+                    // Instanciación de un objeto BinaryFormatter para Serializar el objeto Persona
+                    BinaryFormatter bf = new BinaryFormatter();
 
-                // Se envía el objeto Persona Serializado al servidor
-                bf.Serialize(usuario.GetStream(), persona);
+                    // Se envía el objeto Persona Serializado al servidor
+                    bf.Serialize(usuario.GetStream(), persona);
 
-                mensajeRecibido = lector.ReadLine();
-                MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                TerminarProceso();
+                    mensajeRecibido = lector.ReadLine();
+                    MessageBox.Show(mensajeRecibido, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Su estado se encuentra en ENTREGA_DOCUMENTOS", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    TerminarProceso();
+                }
+                catch (DirectoryNotFoundException dirEx)
+                {
+                    // Excepción cuando la ruta del documento no es válida
+                    MessageBox.Show("Ingrese un documento válido. \n" + dirEx.Message, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch(FileNotFoundException filEx)
+                {
+                    // Excepción cuando el archivo especificado no fue encontrado
+                    MessageBox.Show("El archivo no fue encontrado. \n" + filEx.Message, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
                 MessageBox.Show("Porfavor adjunte un archivo PDF", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        // Validación de que solo ingrese número el usuario
+        private void txtCedula_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
+            {
+                MessageBox.Show("Solo se permiten numeros", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void txtNombre_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
+            {
+                MessageBox.Show("Solo se permiten letras", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void txtApellido_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
+            {
+                MessageBox.Show("Solo se permiten letras", "MiPrimerContrato.co", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
             }
         }
     }

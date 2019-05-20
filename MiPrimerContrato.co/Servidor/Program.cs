@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 using Clases;
 
 namespace Servidor
@@ -28,8 +29,9 @@ namespace Servidor
                 // Llegada de un cliente
                 ManejoCliente cliente = new ManejoCliente(servidor.AcceptTcpClient());
 
-                // El servidor comienza a procesar la solicitud del cliente
-                cliente.ProcesarDatos();
+                // El servidor comienza a procesar la solicitud del cliente mediante hilos
+                Thread hiloProcesoDatos = new Thread(cliente.ProcesarDatos);
+                hiloProcesoDatos.Start();
             }
         }
 

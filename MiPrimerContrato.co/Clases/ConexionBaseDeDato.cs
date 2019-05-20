@@ -78,7 +78,7 @@ namespace Clases
                     if (comando.ExecuteNonQuery() > 0)
                     {
                         cerrarConexion(conexion);
-                        return Tuple.Create(true, "Registro ingresado con éxito.");
+                        return Tuple.Create(true, "Registro ingresado con éxito. Su estado es SOLICITADO");
                     }
                     cerrarConexion(conexion);
                     return Tuple.Create(false, "Error al ingresar los datos.");
