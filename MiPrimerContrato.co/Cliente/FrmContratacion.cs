@@ -331,7 +331,7 @@ namespace Cliente
             }
         }
 
-        // Validación de que solo ingrese número el usuario
+        // El usuario solo podrá ingresar números en la cédula
         private void txtCedula_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!(char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
@@ -342,6 +342,7 @@ namespace Cliente
             }
         }
 
+        //El usuario solo podrá ingresar letras en el nombre
         private void txtNombre_KeyPress(object sender, KeyPressEventArgs e)
         {
             if ((char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
@@ -352,6 +353,7 @@ namespace Cliente
             }
         }
 
+        //El usuario solo podrá ingresar letras en el apellido
         private void txtApellido_KeyPress(object sender, KeyPressEventArgs e)
         {
             if ((char.IsNumber(e.KeyChar)) && (e.KeyChar != (char)Keys.Back))
